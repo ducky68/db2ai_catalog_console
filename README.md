@@ -16,7 +16,7 @@ Common DBA investigations often require the same manual sequence:
 
 1. Translate an operational question into Db2 catalog concepts.
 2. Recall the appropriate `SYSIBM` catalog or RTS sources, columns and joins.
-3. issue multiple discovery, dependency, storage, status or recovery queries.
+3. Issue multiple discovery, dependency, storage, status or recovery queries.
 4. Reconcile raw values across related objects.
 5. Consolidate the findings into evidence suitable for review and handover.
 
