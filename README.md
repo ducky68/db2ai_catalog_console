@@ -8,7 +8,7 @@ The design deliberately separates language understanding from execution authorit
 
 [Download the editable PowerPoint](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pptx) · [View the presentation PDF](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pdf)
 
-![DB2AI Catalog Console and DAISY project infographic](assets/DB2AI_Catalog_Console_DAISY_Infographic_A4_300dpi.png)
+![DB2AI Catalog Console and DAISY project infographic](assets/DB2AI_Catalog_Console_DAISY_Infographic.png)
 
 ## The problem
 
