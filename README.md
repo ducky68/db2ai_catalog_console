@@ -112,3 +112,9 @@ The 16-slide presentation provides the complete source-grounded project story, i
 - [Presentation PDF](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pdf)
 
 > This public repository is a sanitized project-documentation showcase. Internal source code, credentials, endpoints, infrastructure identifiers and environment-specific configuration are not included.
+
+## DAISY application homepage
+
+The homepage provides a clear starting point for governed Db2 catalog investigations. It presents available commands and common DBA checks alongside the current Db2 connection and session context, working schema, read-only safety settings, AI readiness and session refresh details.
+
+![DAISY application homepage](assets/Daisy.jpeg)
