@@ -1,120 +1,139 @@
-# DB2AI Catalog Console / DAISY
+# DAISY — Db2 AI Support for You
 
-> Governed AI for Db2 for z/OS catalog intelligence
+**A Db2 for z/OS investigation assistant that brings catalog evidence, repeatable
+checks and reviewable findings into one terminal workflow.**
 
-DB2AI Catalog Console is a terminal-first DBA investigation assistant. Its conversational interface, **DAISY (Db2 AI Support for You)**, converts natural-language questions into approved, read-only investigations against Db2 for z/OS catalog and Real-Time Statistics (RTS) evidence.
+DAISY, also called the **DB2AI Catalog Console**, helps database administrators
+understand database objects, investigate dependencies and storage, and prepare
+evidence for review. It brings together catalog queries that would otherwise need
+to be run and interpreted separately.
 
-The design deliberately separates language understanding from execution authority: the LLM may interpret intent and select from advertised capabilities, while deterministic Python controls validation, routing, tool approval, database access, evidence handling and export.
+This is public documentation of an internal enterprise project. Examples are
+fictional. Source code, internal configuration and operational data are outside
+the public sharing scope.
 
-[Download the editable PowerPoint](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pptx) · [View the presentation PDF](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pdf)
+## Why DAISY exists
 
-![DB2AI Catalog Console and DAISY project infographic](assets/DB2AI_Catalog_Console_DAISY_Infographic.png)
+A routine DBA question can lead to several separate tasks: identify the object,
+find the relevant catalog information, follow its dependencies, interpret
+statistics and assemble the findings. Repeating that process takes time and makes
+the result depend heavily on an individual's knowledge and saved queries.
 
-## The problem
+DAISY provides a consistent starting point. The user enters a supported command
+or question; Python retrieves metadata, runs the selected investigation and
+presents evidence. Optional AI helps interpret questions and select available
+tools. The database queries and investigation calculations remain in Python.
 
-Common DBA investigations often require the same manual sequence:
+## Architecture at a glance
 
-1. Translate an operational question into Db2 catalog concepts.
-2. Recall the appropriate `SYSIBM` catalog or RTS sources, columns and joins.
-3. Issue multiple discovery, dependency, storage, status or recovery queries.
-4. Reconcile raw values across related objects.
-5. Consolidate the findings into evidence suitable for review and handover.
+![DAISY overview showing DBA questions, Python routing, validation, predefined catalog tools, Db2 evidence, investigation workflows, terminal results and Excel exports.](assets/DB2AI_Catalog_Console_DAISY_Infographic.png)
 
-This repeated process depends heavily on individual catalog knowledge, can lead to inconsistent investigation approaches, and slows database-change impact analysis and evidence preparation.
+[Open the full-size infographic](assets/DB2AI_Catalog_Console_DAISY_Infographic.png).
 
-## The solution
+The infographic groups the main responsibilities; its numbers are conceptual
+labels. In execution, workflows call tools that query Db2, and checks run at
+multiple input and dispatch points. AI routing is optional.
 
-DAISY provides a governed interface for natural-language questions and explicit commands. Each request passes through ordered safety and routing gates before an approved catalog tool or multi-step workflow can run.
+1. **Ask or select a command.** A DBA supplies a question or an explicit operation,
+   with an object or investigation scope.
+2. **Resolve the request.** Python handles commands and recognised local routes.
+   When configured, a large language model (LLM) can interpret intent and propose
+   a supported tool.
+   Missing details may lead to clarification.
+3. **Validate and dispatch.** The application checks the selected operation and
+   its arguments through the relevant dispatch path. Predefined tools contain
+   the SQL; workflows prescribe the investigation steps.
+4. **Collect and interpret evidence.** Catalog and real-time statistics (RTS)
+   reads return metadata. Python combines results, calculations and warnings.
+   Local glossary and pasted-output interpretation can work without a database
+   query.
+5. **Review and retain results.** The terminal shows tables and findings. Session
+   context supports follow-up questions, and Excel export can retain supporting
+   evidence for review.
 
-At a high level:
+## What DAISY can do
 
-1. The user submits a DBA question or supported command.
-2. Deterministic pre-routing blocks unsafe intent, resolves local commands and handles known clarification cases.
-3. DAISY returns a strict, structured intent route—not executable SQL.
-4. Python normalizes and validates the route, identifiers and arguments.
-5. Only a tool or workflow in the approved registry can be dispatched.
-6. Read-only catalog and RTS queries return typed evidence.
-7. Results are rendered in the terminal and can be packaged into an Excel evidence pack.
-8. Safe session context and usage logging preserve continuity and traceability.
+| Investigation need | Implemented capability |
+| --- | --- |
+| Understand an object | Inspect definitions, columns, indexes, constraints and privileges. |
+| Assess change impact | Trace catalog-recorded packages, plans, views, triggers and related objects. |
+| Investigate storage | Combine tablespace, index and RTS evidence into object, database and storage-group summaries. |
+| Review health and readiness | Assemble prescribed checks for status, partitions, pending definitions and supported object families. Findings remain advisory. |
+| Explain and compare | Explain metadata terms and status codes, interpret pasted DISPLAY output, and compare supported columns, indexes and catalog-derived DDL. |
+| Prepare a handover | Present findings with warnings and tool traces, and export results to Excel. |
 
-## Primary capabilities
+These capabilities are supported by the inspected implementation and selected
+offline tests. Live compatibility and coverage vary by catalog, object type,
+configuration and entry path.
 
-- Discover and locate schemas, databases, storage groups, tablespaces, objects and columns.
-- Profile object metadata and explain Db2 catalog terminology and status values.
-- Trace packages, plans, views, triggers, referential integrity, constraints and privileges.
-- Assess dependencies and object families during database-change impact analysis.
-- Review RTS footprint, partitions, storage, copy history, pending DDL and index readiness.
-- Investigate catalog abnormal status and interpret pasted `DISPLAY` output.
-- Compare columns, indexes and catalog-derived DDL.
-- Compose approved checks into health, readiness, storage and impact-analysis workflows.
-- Present findings, warnings, source catalogs and tool traces in terminal and Excel formats.
+## Practical benefits and time savings
 
-The inspected project sources expose **67 approved callable tools** and **16 multi-step workflow methods**. The refreshed project documentation describes a **15-module current architecture** and reports **zero syntax failures across its 15-file validation run**.
+| Manual effort | How DAISY reduces repeated work |
+| --- | --- |
+| Recall and assemble several catalog queries | Predefined tools provide reusable investigation operations. |
+| Repeat the same sequence of checks | Workflows run prescribed steps and combine their results. |
+| Reconcile findings across separate outputs | Structured results keep contributing evidence, warnings and calculations together. |
+| Copy results into a handover document | Excel evidence export packages investigation material for review. |
 
-## Technology stack
+The intended time saving comes from reducing query preparation, repeated
+navigation and evidence assembly. Saved queries and ordinary scripts remain a
+useful comparison baseline; AI's additional value is easier access through
+natural language.
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Runtime and terminal UI | Python, Rich, `input()` / `prompt_toolkit` | Modular command-line experience and readable evidence rendering |
-| Db2 connectivity | ODBC, `pypyodbc` | Controlled read-only access to Db2 for z/OS |
-| Validation and models | Pydantic, dataclasses | Strict tool inputs and typed query/workflow results |
-| AI orchestration | LangChain, native function calling, strict JSON routing | Natural-language intent selection from an approved capability catalog |
-| LLM gateway access | Azure/OpenAI-compatible gateway, `httpx` | Controlled enterprise model access and HTTP handling |
-| Deterministic knowledge | Python glossaries and text parsing | Explain metadata and status evidence without database execution |
-| Evidence and state | `openpyxl`, JSONL, JSON state | Excel evidence packs, usage audit trail and safe session context |
-| Configuration | `.env`, `python-dotenv` | Externalized operational configuration without embedding secrets |
+**The reviewed records do not establish measured minutes saved or a productivity
+percentage.** A fair comparison would time the same investigations manually,
+through explicit DAISY commands and through its AI route, while checking result
+quality. The [engineering notes](engineering-notes.md#evaluation-and-measuring-value)
+describe that proposed evaluation.
 
-## Security and governance
+## A small example
 
-Safety is enforced through multiple independent boundaries:
+After authorised setup and login, a DBA could investigate the fictional object
+`DEMO.T_ACCOUNT`:
 
-- **Prompt boundary:** blocks prompt injection, secret requests, off-topic requests and mutation or administration intent.
-- **Route boundary:** accepts only structured routes that can be normalized, clarified, repaired safely or rejected.
-- **Tool boundary:** exposes approved tool objects only; arbitrary SQL is not an LLM capability.
-- **SQL boundary:** validates read-only `SELECT` operations and blocks prohibited keywords.
-- **Data boundary:** limits access to approved Db2 catalog and RTS evidence rather than application data.
-- **Output boundary:** controls session memory, logging and evidence-only Excel exports.
+```text
+/metadata DEMO.T_ACCOUNT
+/export-evidence
+/quit
+```
 
-The LLM is never authorized to execute raw SQL, DDL, DML, utilities, administration commands, shell commands or Python code, and credentials are not placed in its context.
+The metadata workflow gathers an object profile and supporting results.
+The export command saves the retained workflow evidence to Excel. The DBA
+reviews the findings and any missing evidence before deciding what to do next.
+Natural-language questions provide another entry point when AI is configured;
+their routing quality still needs live evaluation.
 
-## Evidence and validation
+## Scope, controls and data handling
 
-Query and workflow results preserve:
+The exposed operations investigate catalog metadata and interpret supplied text.
+They do not provide a general SQL execution tool, execute database changes or
+utilities, retrieve application business rows, or issue live DISPLAY commands.
+Displaying or comparing Data Definition Language (DDL) text does not execute it.
 
-- result tables and source catalogs;
-- findings with severity;
-- warnings and conclusions;
-- the approved tool trace;
-- execution context suitable for operational handover.
+Code checks include approved tool dispatch, argument and identifier validation,
+SQL keyword checks and limits on the native agent's rounds and tool calls.
+These controls have specific limits: keyword checks are not a full SQL parser,
+and the connection layer does not itself establish database-enforced read-only
+access. Account permissions and authorised configuration remain essential.
 
-The documented validation covers catalog abnormal-status handling, `DISPLAY` glossary and parser behaviour, clarification flows, and safety regression categories. The presentation distinguishes results verified directly in the supplied source listings from current-state claims reported by the refreshed project documents.
+Catalog evidence can be incomplete or stale. Dependency results do not establish
+every runtime dependency, and readiness findings do not replace operational
+approval. With AI enabled, questions, context and sampled evidence can reach the
+configured provider. Logs and exports can retain sensitive metadata; automatic
+redaction and retention controls are not implemented.
 
-## Operational value
+## Environment and validation
 
-- Reduces repeated manual catalog SQL for common DBA investigations.
-- Accelerates impact analysis across dependencies and related object families.
-- Standardizes investigation workflows, terminology and evidence interpretation.
-- Improves review and handover through visible trace, findings and Excel evidence packs.
-- Helps less-experienced DBAs use established investigation patterns without granting unrestricted execution.
+An authorised installation needs Python, a compatible native Db2 ODBC driver,
+a configured data source and catalog access. Excel export needs its Python
+dependency; AI adds optional model-client dependencies and an approved provider.
+The public documentation set does not include a runnable installation.
 
-## Current boundaries
+Saved validation records from **21 October 2026** report **50 passing offline
+tests** against the refactored application, using synthetic data and mocked
+database/provider boundaries on Python 3.12 and macOS. Live Db2/provider
+integration and Windows operation were not verified in that validation.
 
-- Catalog and RTS evidence does not replace live `DISPLAY DATABASE` proof.
-- Pasted `DISPLAY` parsing is best-effort and benefits from additional real-world samples.
-- Application-data access, utility execution and automated remediation are intentionally excluded.
-- No quantified time-saved percentage is claimed because the supplied evidence does not establish one.
-
-## Project presentation
-
-The 16-slide presentation provides the complete source-grounded project story, including architecture, startup sequence, request routing, the LLM/Python responsibility boundary, security controls, capability groups, workflow orchestration, evidence generation, validation results, operational impact and roadmap.
-
-- [Editable PowerPoint presentation](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pptx)
-- [Presentation PDF](docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pdf)
-
-> This public repository is a sanitized project-documentation showcase. Internal source code, credentials, endpoints, infrastructure identifiers and environment-specific configuration are not included.
-
-## DAISY application homepage
-
-The homepage provides a clear starting point for governed Db2 catalog investigations. It presents available commands and common DBA checks alongside the current Db2 connection and session context, working schema, read-only safety settings, AI readiness and session refresh details.
-
-![DAISY application homepage](assets/Daisy.jpeg)
+Read [Engineering Notes](engineering-notes.md) for the design decisions,
+development challenges, contribution and AI-assistance account, test evidence,
+lessons learned and remaining work.
