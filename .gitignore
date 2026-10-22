@@ -9,6 +9,6 @@
 !/assets/daisy-architecture-infographic.png
 !/assets/daisy-workflow-infographic.png
 !/assets/Daisy.jpeg
-!/docs/
-!/docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pdf
-!/docs/DB2AI_Catalog_Console_DAISY_Project_Presentation.pptx
+
+# Keep presentation documents local only.
+/docs/
