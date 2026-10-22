@@ -1,95 +1,85 @@
 # DAISY — Db2 AI Support for You
 
-**A Db2 for z/OS investigation assistant that brings catalog evidence, repeatable
-checks and reviewable findings into one terminal workflow.**
+**A Db2 for z/OS investigation assistant that brings catalog evidence,
+repeatable checks and reviewable findings into one terminal workflow.**
 
 DAISY, also called the **DB2AI Catalog Console**, helps database administrators
 understand database objects, investigate dependencies and storage, and prepare
-evidence for review. It brings together catalog queries that would otherwise need
-to be run and interpreted separately.
+evidence for review. It combines catalog queries that would otherwise need to
+be selected, run and interpreted separately.
 
-This is public documentation of an internal enterprise project. Examples are
-fictional. Source code, internal configuration and operational data are outside
-the public sharing scope.
+This self-initiated internal project applies database and production-support
+experience to Python automation and controlled AI integration.
 
-## Why DAISY exists
+**Technologies:** Python · Db2 for z/OS · ODBC connectivity · Optional LLM tool
+calling · Excel evidence exports
 
-A routine DBA question can lead to several separate tasks: identify the object,
-find the relevant catalog information, follow its dependencies, interpret
-statistics and assemble the findings. Repeating that process takes time and makes
-the result depend heavily on an individual's knowledge and saved queries.
+## The problem DAISY addresses
 
-DAISY provides a consistent starting point. The user enters a supported command
-or question; Python retrieves metadata, runs the selected investigation and
-presents evidence. Optional AI helps interpret questions and select available
-tools. The database queries and investigation calculations remain in Python.
+A question such as “What depends on this table?” can lead to several separate
+queries, checks and outputs. Repeating that process takes time, relies on
+individual knowledge and makes consistent handovers harder.
+
+DAISY brings those steps together. Predefined tools retrieve metadata,
+repeatable workflows organise the investigation, and results retain supporting
+evidence and warnings. Optional AI lets a DBA ask questions in natural language;
+explicit commands provide direct access to supported operations.
+
+The intended benefits are less query preparation, more consistent checks and
+simpler evidence assembly. Time savings and the additional benefit of AI remain
+to be measured.
+
+## What DAISY can do
+
+| DBA need | DAISY capability |
+| --- | --- |
+| Understand an object | Inspect definitions, columns, indexes, constraints and privileges. |
+| Assess dependencies | Trace catalog-recorded packages, plans, views, triggers and related objects. |
+| Investigate storage and health | Combine tablespace, index and real-time statistics (RTS) evidence into storage summaries and advisory readiness findings. |
+| Explain and compare | Explain metadata terms and status codes, interpret pasted DISPLAY output, and compare supported columns, indexes and catalog-derived definitions. |
+| Prepare a handover | Present findings with warnings and tool traces, and export investigation evidence to Excel. |
+
+## DAISY console
+
+![DAISY terminal welcome screen with example questions, investigation steps, command shortcuts, and connection and session details.](assets/daisy_main.png)
+
+The console brings together example questions, an investigation flow and command
+shortcuts. The side panel shows connection, active-schema and AI status. Session
+values reflect the captured example and vary by configuration.
 
 ## Architecture at a glance
 
 ![DAISY overview showing DBA questions, Python routing, validation, predefined catalog tools, Db2 evidence, investigation workflows, terminal results and Excel exports.](assets/DB2AI_Catalog_Console_DAISY_Infographic.png)
 
-[Open the full-size infographic](assets/DB2AI_Catalog_Console_DAISY_Infographic.png).
+[Open the full-size overview](assets/DB2AI_Catalog_Console_DAISY_Infographic.png).
 
 The infographic groups the main responsibilities; its numbers are conceptual
-labels. In execution, workflows call tools that query Db2, and checks run at
-multiple input and dispatch points. AI routing is optional.
+labels. Workflows call tools that query Db2, and validation occurs at multiple
+points. AI routing is optional.
 
-1. **Ask or select a command.** A DBA supplies a question or an explicit operation,
-   with an object or investigation scope.
-2. **Resolve the request.** Python handles commands and recognised local routes.
-   When configured, a large language model (LLM) can interpret intent and propose
-   a supported tool.
-   Missing details may lead to clarification.
-3. **Validate and dispatch.** The application checks the selected operation and
-   its arguments through the relevant dispatch path. Predefined tools contain
-   the SQL; workflows prescribe the investigation steps.
-4. **Collect and interpret evidence.** Catalog and real-time statistics (RTS)
-   reads return metadata. Python combines results, calculations and warnings.
-   Local glossary and pasted-output interpretation can work without a database
-   query.
-5. **Review and retain results.** The terminal shows tables and findings. Session
-   context supports follow-up questions, and Excel export can retain supporting
-   evidence for review.
+### How the components work together
 
-## What DAISY can do
+![DAISY architecture: DBA input flows through Python tools and workflows, with catalog queries, optional AI, evidence outputs and local files.](assets/daisy-architecture-infographic.png)
 
-| Investigation need | Implemented capability |
-| --- | --- |
-| Understand an object | Inspect definitions, columns, indexes, constraints and privileges. |
-| Assess change impact | Trace catalog-recorded packages, plans, views, triggers and related objects. |
-| Investigate storage | Combine tablespace, index and RTS evidence into object, database and storage-group summaries. |
-| Review health and readiness | Assemble prescribed checks for status, partitions, pending definitions and supported object families. Findings remain advisory. |
-| Explain and compare | Explain metadata terms and status codes, interpret pasted DISPLAY output, and compare supported columns, indexes and catalog-derived DDL. |
-| Prepare a handover | Present findings with warnings and tool traces, and export results to Excel. |
+[Open the full-size architecture](assets/daisy-architecture-infographic.png).
+Dashed arrows show optional AI interactions.
 
-These capabilities are supported by the inspected implementation and selected
-offline tests. Live compatibility and coverage vary by catalog, object type,
-configuration and entry path.
+- **The DBA defines the task** through a command or question.
+- **AI interprets intent and selects available tools** when enabled.
+- **Python validates requests and controls execution**, including predefined SQL,
+  investigation steps and calculations.
+- **Db2 supplies catalog evidence**, which supports terminal findings and
+  optional Excel exports.
+- **The DBA reviews the findings** and decides what action is appropriate.
 
-## Practical benefits and time savings
+## From question to results
 
-| Manual effort | How DAISY reduces repeated work |
-| --- | --- |
-| Recall and assemble several catalog queries | Predefined tools provide reusable investigation operations. |
-| Repeat the same sequence of checks | Workflows run prescribed steps and combine their results. |
-| Reconcile findings across separate outputs | Structured results keep contributing evidence, warnings and calculations together. |
-| Copy results into a handover document | Excel evidence export packages investigation material for review. |
+![DAISY workflow: ask a question, route and validate it, gather catalog evidence, review findings, and optionally export to Excel.](assets/daisy-workflow-infographic.png)
 
-The intended time saving comes from reducing query preparation, repeated
-navigation and evidence assembly. Saved queries and ordinary scripts remain a
-useful comparison baseline; AI's additional value is easier access through
-natural language.
+[Open the full-size workflow](assets/daisy-workflow-infographic.png).
 
-**The reviewed records do not establish measured minutes saved or a productivity
-percentage.** A fair comparison would time the same investigations manually,
-through explicit DAISY commands and through its AI route, while checking result
-quality. The [engineering notes](engineering-notes.md#evaluation-and-measuring-value)
-describe that proposed evaluation.
-
-## A small example
-
-After authorised setup and login, a DBA could investigate the fictional object
-`DEMO.T_ACCOUNT`:
+After an authorised connection, an investigation of the fictional object
+`DEMO.T_ACCOUNT` could look like this:
 
 ```text
 /metadata DEMO.T_ACCOUNT
@@ -98,42 +88,35 @@ After authorised setup and login, a DBA could investigate the fictional object
 ```
 
 The metadata workflow gathers an object profile and supporting results.
-The export command saves the retained workflow evidence to Excel. The DBA
-reviews the findings and any missing evidence before deciding what to do next.
-Natural-language questions provide another entry point when AI is configured;
-their routing quality still needs live evaluation.
+Export saves the retained investigation evidence to Excel on request. Missing
+information can lead to clarification; errors and warnings remain part of the
+review.
 
-## Scope, controls and data handling
+## Scope and operating boundaries
 
-The exposed operations investigate catalog metadata and interpret supplied text.
-They do not provide a general SQL execution tool, execute database changes or
-utilities, retrieve application business rows, or issue live DISPLAY commands.
-Displaying or comparing Data Definition Language (DDL) text does not execute it.
+DAISY's exposed operations investigate catalog metadata and interpret supplied
+text. They do not execute database changes, utilities, arbitrary SQL or live
+DISPLAY commands, or retrieve application business rows. Comparing database
+definitions does not execute them.
 
-Code checks include approved tool dispatch, argument and identifier validation,
-SQL keyword checks and limits on the native agent's rounds and tool calls.
-These controls have specific limits: keyword checks are not a full SQL parser,
-and the connection layer does not itself establish database-enforced read-only
-access. Account permissions and authorised configuration remain essential.
+Findings are advisory. Catalog evidence can be incomplete or stale, and a catalog
+dependency list is not a complete application impact assessment. Application
+checks must be supported by appropriate database account permissions. With AI
+enabled, questions, context and sampled evidence can reach the configured
+provider; logs and exports also require appropriate handling.
 
-Catalog evidence can be incomplete or stale. Dependency results do not establish
-every runtime dependency, and readiness findings do not replace operational
-approval. With AI enabled, questions, context and sampled evidence can reach the
-configured provider. Logs and exports can retain sensitive metadata; automatic
-redaction and retention controls are not implemented.
+## Project ownership and validation
 
-## Environment and validation
+I originated the idea, selected the investigation flow, designed the boundary
+between AI tool selection and Python-controlled execution, and worked through
+the initial Python-to-Db2 connection. AI assisted development, testing, review
+and documentation.
 
-An authorised installation needs Python, a compatible native Db2 ODBC driver,
-a configured data source and catalog access. Excel export needs its Python
-dependency; AI adds optional model-client dependencies and an approved provider.
-The public documentation set does not include a runnable installation.
+Recorded automated checks passed for selected investigation workflows, input
+validation, error handling, AI tool controls and Excel exports. These checks
+used prepared database results and simulated AI replies. They verify specific
+application behaviours; live database compatibility and AI accuracy require
+separate evaluation.
 
-Saved validation records from **21 October 2026** report **50 passing offline
-tests** against the refactored application, using synthetic data and mocked
-database/provider boundaries on Python 3.12 and macOS. Live Db2/provider
-integration and Windows operation were not verified in that validation.
-
-Read [Engineering Notes](engineering-notes.md) for the design decisions,
-development challenges, contribution and AI-assistance account, test evidence,
-lessons learned and remaining work.
+Read the [Engineering Notes](engineering-notes.md) for my contribution, design
+trade-offs, practical challenges, validation evidence and evaluation priorities.
